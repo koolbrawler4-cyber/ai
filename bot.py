@@ -17,7 +17,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ADMIN_ID_STR = os.getenv("ADMIN_ID", "0")
 
-# Проверка переменных окружения, чтобы бот не падал молча
+# Проверка переменных окружения
 if not BOT_TOKEN:
     print("❌ ОШИБКА: BOT_TOKEN не найден в переменных окружения!")
     sys.exit(1)
@@ -134,7 +134,7 @@ async def chat_with_ai(message: Message):
             await message.answer("🔒 У тебя нет активной подписки на FTCL AI. Обратись к администратору для её получения.")
             return
 
-    # 3. Запрос к Google Gemini API (используем актуальную модель)
+    # 3. Запрос к Google Gemini API с актуальной бесплатной моделью 3.8 Flash
     try:
         response = await ai_client.aio.models.generate_content(
             model='gemini-3.8-flash',
