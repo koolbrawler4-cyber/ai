@@ -134,10 +134,10 @@ async def chat_with_ai(message: Message):
             await message.answer("🔒 У тебя нет активной подписки на FTCL AI. Обратись к администратору для её получения.")
             return
 
-    # 3. Запрос к Google Gemini API через стабильный алиас latest
+    # 3. Запрос к Google Gemini API (модель gemini-2.0-flash)
     try:
         response = await ai_client.aio.models.generate_content(
-            model='gemini-flash-latest',
+            model='gemini-2.0-flash',
             contents=message.text,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
