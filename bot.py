@@ -1,4 +1,5 @@
 import os
+import sys
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher, F, Router
@@ -14,13 +15,24 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
+ADMIN_ID_STR = os.getenv("ADMIN_ID", "0")
+
+# Проверка переменных окружения, чтобы бот не падал молча
+if not BOT_TOKEN:
+    print("❌ ОШИБКА: BOT_TOKEN не найден в переменных окружения!")
+    sys.exit(1)
+
+if not GEMINI_API_KEY:
+    print("❌ ОШИБКА: GEMINI_API_KEY не найден в переменных окружения!")
+    sys.exit(1)
+
+ADMIN_ID = int(ADMIN_ID_STR)
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-# Явная инициализация клиента Google GenAI с твоим ключом
+# Подключаем клиент Google GenAI
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Непробиваемый системный промпт Guchiman 1.0 для Gemini
@@ -108,13 +120,13 @@ async def give_sub(message: Message):
 # --- ОБРАБОТЧИК СООБЩЕНИЙ С ИИ ---
 @router.message(F.text)
 async def chat_with_ai(message: Message):
-    # 1. Проверяем статус ИИ в базе
+    # 1. Проверяем статус ИИ в базе (глобальный тумблер из админки)
     ai_is_active = await get_ai_status()
     if not ai_is_active:
         await message.answer("🛠 ИИ временно отключен администрацией лиги на тех. обслуживание.")
         return
 
-    # 2. Проверяем подписку
+    # 2. Проверяем подписку (админ проходит без подписки)
     user_id = message.from_user.id
     if user_id != ADMIN_ID:
         has_sub = await check_subscription(user_id)
