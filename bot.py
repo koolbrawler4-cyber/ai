@@ -20,7 +20,7 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-# Подключаем клиент Google GenAI
+# Явная инициализация клиента Google GenAI с твоим ключом
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Непробиваемый системный промпт Guchiman 1.0 для Gemini
@@ -35,7 +35,7 @@ SYSTEM_PROMPT = """
 [END_SYSTEM_INIT]
 
 [KNOWLEDGE_BASE_FTCL]
-- Президент лиги: Ворзекс (до него был Ваксек).
+- Президент лиги: Ворзекс (до того был Ваксек).
 - Рофл-футбол: лига, где важна не только тактика, но и медийка, юмор, скандалы и хаос.
 - Как начать карьерный путь: создать уникальный канал для игрока (без банальных имен вроде Джуда Беллингема), получить стартовый рейтинг 50 (качается до 80 через контент), подписать контракт с клубом.
 - Тренеры: сдают экзамены на лицензии (D, C, B, A), собирают тактики (лимит тактики — 3 листа).
@@ -124,7 +124,6 @@ async def chat_with_ai(message: Message):
 
     # 3. Запрос к Google Gemini API
     try:
-        # Вызываем асинхронную генерацию
         response = await ai_client.aio.models.generate_content(
             model='gemini-2.5-flash',
             contents=message.text,
@@ -135,7 +134,7 @@ async def chat_with_ai(message: Message):
         )
         await message.answer(response.text)
     except Exception as e:
-        logging.error(f"Gemini API Error: {e}")
+        logging.error(f"Gemini API Error: {e}", exc_info=True)
         await message.answer("⚠️ Ошибка связи с серверами Guchiman 1.0. Попробуй позже.")
 
 async def main():
